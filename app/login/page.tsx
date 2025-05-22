@@ -23,7 +23,7 @@ export default function LoginPage() {
     // In a real app, you would authenticate with your backend
     // For demo purposes, we'll just redirect to the admin dashboard
     setTimeout(() => {
-      router.push("/admin")
+      router.push("/")
     }, 1000)
   }
 

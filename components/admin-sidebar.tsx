@@ -19,21 +19,21 @@ const navItems = [
     href: "/tours",
     icon: Map,
   },
-  {
-    title: "Destinations",
-    href: "/destinations",
-    icon: MapPin,
-  },
+  //{
+    //title: "Destinations",
+    //href: "/destinations",
+   // icon: MapPin,
+  //},
   {
     title: "Users",
     href: "/users",
     icon: Users,
   },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
+ // {
+   // title: "Settings",
+    //href: "/settings",
+    //icon: Settings,
+  //},
 ]
 
 export default function AdminSidebar() {
@@ -79,7 +79,7 @@ export default function AdminSidebar() {
       </div>
       <div className="p-4 border-t">
         <Link
-          href="/admin/logout"
+          href="/login"
           className={cn(
             "flex items-center py-2 px-3 rounded-md text-red-600 hover:bg-red-50 transition-colors",
             collapsed && "justify-center px-2",

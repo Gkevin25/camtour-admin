@@ -21,14 +21,7 @@ export default function AdminHeader() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-6">
       <div className="hidden w-full max-w-sm md:flex">
         <div className="relative w-full">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="w-full rounded-lg bg-gray-100 pl-8 focus-visible:ring-green-700"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          
         </div>
       </div>
       <div className="flex flex-1 items-center justify-end gap-4">
