@@ -29,65 +29,66 @@ type User = Models.Document & {
   user_name: string
   email: string
   amount_spent: number
+  phone_number: string
 }
 
 export function UsersTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [tourToDelete, setTourToDelete] = useState<string | null>(null)
-  const [tours, setTours] = useState<User[]>([])
+  const [userToDelete, setUserToDelete] = useState<string | null>(null)
+  const [users, setUsers] = useState<User[]>([])
 
   //const DATABASE_ID = "682eeb4b0034b4b0f901"
   //const COLLECTION_ID = "682eeb5c0033b37e5b6a"
 
   /*useEffect(() => {
-    fetchTours()
+    fetchusers()
   }, [])*/
 
-  /*const fetchTours = async () => {
+  /*const fetchusers = async () => {
     //try {
       //const response = await databases.listDocuments(
        // DATABASE_ID,
         //COLLECTION_ID
       )
-      setTours(response.documents as Tour[])
+      setusers(response.documents as user[])
     } catch (error) {
-      console.error("Error fetching tours:", error)
+      console.error("Error fetching users:", error)
     }
   }*/
 
-  // Filter tours based on search query and category
-  const filteredTours = tours.filter((tour) => {
+  // Filter users based on search query and category
+  const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      tour.tour_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tour.location.toLowerCase().includes(searchQuery.toLowerCase())
+      user.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.location.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesCategory = categoryFilter === "all" || tour.category.toLowerCase() === categoryFilter.toLowerCase()
+    const matchesCategory = categoryFilter === "all" || user.category.toLowerCase() === categoryFilter.toLowerCase()
 
     return matchesSearch && matchesCategory
   })
 
   const handleDeleteClick = (id: string) => {
-    setTourToDelete(id)
+    setUserToDelete(id)
     setDeleteDialogOpen(true)
   }
 
   const handleDeleteConfirm = async () => {
-    if (!tourToDelete) return
+    if (!userToDelete) return
 
    /* try {
       await databases.deleteDocument(
         DATABASE_ID,
         COLLECTION_ID,
-        tourToDelete
+        userToDelete
       )
-      await fetchTours() // Refresh the list
+      await fetchusers() // Refresh the list
       setDeleteDialogOpen(false)
-      setTourToDelete(null)
+      setuserToDelete(null)
     } catch (error) {
-      console.error("Error deleting tour:", error)
-      alert("Failed to delete tour. Please try again.")
+      console.error("Error deleting user:", error)
+      alert("Failed to delete user. Please try again.")
     }*/
   }
 
@@ -110,22 +111,24 @@ export function UsersTable() {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Amount_Spent</TableHead>
+              <TableHead>Phone Number</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTours.map((tour) => (
-              <TableRow key={tour.$id}>
+            {filteredUsers.map((user) => (
+              <TableRow key={user.$id}>
                 <TableCell>
-                  <div className="font-medium">{tour.tour_name}</div>
+                  <div className="font-medium">{user.user_name}</div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="capitalize">
-                    {tour.category}
+                    {user.category}
                   </Badge>
                 </TableCell>
-                <TableCell>{tour.location}</TableCell>
-                <TableCell>{tour.price.toLocaleString()} XAF</TableCell>
-                <TableCell>{tour.duration}</TableCell>
+                <TableCell>{user.user_name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.amount_spent.toLocaleString()} XAF</TableCell>
+                <TableCell>{user.phone_number}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -135,12 +138,12 @@ export function UsersTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link href={`/tours/${tour.$id}`}>
+                        <Link href={`/users/${user.$id}`}>
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDeleteClick(tour.$id)}>
+                      <DropdownMenuItem onClick={() => handleDeleteClick(user.$id)}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>
@@ -156,9 +159,9 @@ export function UsersTable() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Are you sure you want to delete this tour?</DialogTitle>
+            <DialogTitle>Are you sure you want to delete this user?</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete the tour and remove it from the website.
+              This action cannot be undone. This will permanently delete the user and remove it from the website.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
