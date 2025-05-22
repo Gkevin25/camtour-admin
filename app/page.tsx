@@ -1,10 +1,22 @@
+"use client"
 import './globals.css'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Overview } from "@/components/overview"
 import { RecentSales } from "@/components/recent-sales"
 import { DashboardStats } from "@/components/dashboard-stats"
+import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
+
+  const [isClient, setIsClient] = useState(false)
+ 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  // Check if the component is mounted on the client side
+  if (!isClient) {
+    return null // Render nothing on the server side
+  }
   return (
     <div className="space-y-6">
       <div>

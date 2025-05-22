@@ -1,10 +1,24 @@
+"use client"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ToursTable } from "@/components/tours-table"
 
-export default function ToursPage() {
+
+
+export default async function ToursPage() {
+
+  // Check if the component is mounted on the client side
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return null // Render nothing on the server side
+  }
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -13,7 +27,7 @@ export default function ToursPage() {
           <p className="text-muted-foreground">Manage your tours and excursions.</p>
         </div>
         <Link href="/tours/new">
-          <Button>
+          <Button >
             <Plus className="mr-2 h-4 w-4" />
             Add New Tour
           </Button>

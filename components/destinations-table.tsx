@@ -31,6 +31,9 @@ export function DestinationsTable() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [destinationToDelete, setDestinationToDelete] = useState<string | null>(null)
 
+  
+
+
   // Get destinations data
   const destinations = getAllDestinations()
 

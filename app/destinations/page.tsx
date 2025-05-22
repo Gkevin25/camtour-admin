@@ -3,8 +3,9 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { DestinationsTable } from "@/components/destinations-table"
+import { Suspense } from "react"
 
-export default function DestinationsPage() {
+export default async function DestinationsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -21,7 +22,9 @@ export default function DestinationsPage() {
       </div>
 
       <Card>
-        <DestinationsTable />
+        <Suspense fallback={<div>Loading...</div>}>
+          <DestinationsTable />
+        </Suspense>
       </Card>
     </div>
   )
