@@ -28,8 +28,9 @@ import { databases } from "@/appwrite"
 type User = Models.Document & {
   user_name: string
   email: string
-  amount_spent: number
   phone_number: string
+  amount_spent: number
+  
 }
 
 export function UsersTable() {
@@ -110,8 +111,8 @@ export function UsersTable() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Amount_Spent</TableHead>
               <TableHead>Phone Number</TableHead>
+              <TableHead>Amount_Spent</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -127,8 +128,8 @@ export function UsersTable() {
                 </TableCell>
                 <TableCell>{user.user_name}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.amount_spent.toLocaleString()} XAF</TableCell>
                 <TableCell>{user.phone_number}</TableCell>
+                <TableCell>{user.amount_spent.toLocaleString()} XAF</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
