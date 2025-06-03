@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { databases } from "@/appwrite" // Use the correct path if needed
+import { databases, storage } from "@/appwrite" // Use the correct path if needed
+import { ID } from "appwrite"
 
 interface Highlight {
   id: string
@@ -42,10 +43,13 @@ export function TourForm({ tour }: TourFormProps = {}) {
   const [mainImage, setMainImage] = useState<string | null>(tour?.image || null)
   const [galleryImages, setGalleryImages] = useState<string[]>(tour?.galleryImages || [])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploadingMainImage, setIsUploadingMainImage] = useState(false)
+  const [isUploadingGalleryImage, setIsUploadingGalleryImage] = useState(false)
 
-  const DATABASE_ID = "682eeb4b0034b4b0f901"; // Replace with your actual database ID
-  const COLLECTION_ID = "682eeb5c0033b37e5b6a"; // Replace with your actual collection ID
-
+  const DATABASE_ID = "682eeb4b0034b4b0f901";
+  const COLLECTION_ID = "682eeb5c0033b37e5b6a";
+  const STORAGE_BUCKET_ID = "683eca93002024542877"; 
+  
   const handleAddHighlight = () => {
     setHighlights([...highlights, { id: `highlight-${highlights.length + 1}`, text: "" }])
   }
@@ -58,21 +62,80 @@ export function TourForm({ tour }: TourFormProps = {}) {
     setHighlights(highlights.map((highlight) => (highlight.id === id ? { ...highlight, text: value } : highlight)))
   }
 
-  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      // In a real app, you would upload the file to your server or a storage service
-      // For demo purposes, we'll just use a placeholder
-      setMainImage("/placeholder.svg?height=400&width=600")
+    if (!file) return
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size must be less than 5MB")
+      return
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert("Please select a valid image file")
+      return
+    }
+
+    setIsUploadingMainImage(true)
+    console.log("Uploading file:", file.name, "Size:", file.size, "Type:", file.type)
+    console.log("Using bucket ID:", STORAGE_BUCKET_ID)
+
+    try {
+      // Upload file to Appwrite storage
+      const response = await storage.createFile(
+        STORAGE_BUCKET_ID,
+        ID.unique(),
+        file
+      )
+      console.log("Upload response:", response)
+
+      // Get the file URL
+      const fileUrl = storage.getFileView(STORAGE_BUCKET_ID, response.$id)
+
+      // Update the main image state with the URL
+      setMainImage(fileUrl.toString())
+
+    } catch (error) {
+      console.error("Error uploading main image:", error)
+      // More detailed error message
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+      alert(`Failed to upload image: ${errorMessage}. Please check your bucket permissions and try again.`)
+    } finally {
+      setIsUploadingMainImage(false)
     }
   }
 
-  const handleGalleryImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      // In a real app, you would upload the file to your server or a storage service
-      // For demo purposes, we'll just use a placeholder
-      setGalleryImages([...galleryImages, "/placeholder.svg?height=400&width=600"])
+    if (!file) return
+
+    setIsUploadingGalleryImage(true)
+
+    try {
+      // Upload file to Appwrite storage
+      const response = await storage.createFile(
+        STORAGE_BUCKET_ID,
+        ID.unique(),
+        file
+      )
+
+      // Get the file URL
+      const fileUrl = storage.getFileView(STORAGE_BUCKET_ID, response.$id)
+
+      // Add the URL to the gallery images array
+      setGalleryImages([...galleryImages, fileUrl.toString()])
+
+    } catch (error) {
+      console.error("Error uploading gallery image:", error)
+      // More detailed error message
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+      alert(`Failed to upload image: ${errorMessage}. Please check your bucket permissions and try again.`)
+    } finally {
+      setIsUploadingGalleryImage(false)
+      // Reset the file input to allow uploading the same file again
+      e.target.value = ''
     }
   }
 
@@ -94,9 +157,14 @@ export function TourForm({ tour }: TourFormProps = {}) {
         duration,
         description,
         highlights: highlights.map(h => h.text),
-        //image: mainImage,
-        //galleryImages,
+        image: mainImage,
+        galleryImages,
       }
+
+      console.log("Submitting tour data:", data)
+      console.log("Database ID:", DATABASE_ID)
+      console.log("Collection ID:", COLLECTION_ID)
+
       // Create document in Appwrite
       await databases.createDocument(
         DATABASE_ID,
@@ -108,7 +176,9 @@ export function TourForm({ tour }: TourFormProps = {}) {
       router.push("/tours")
     } catch (error) {
       console.error("Error submitting form:", error)
-      alert("Failed to create tour. Please try again.")
+      // More detailed error message
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+      alert(`Failed to create tour: ${errorMessage}. Please check the console for more details.`)
     } finally {
       setIsSubmitting(false)
     }
@@ -261,12 +331,17 @@ export function TourForm({ tour }: TourFormProps = {}) {
                         className="hidden"
                         id="main-image-upload"
                         onChange={handleMainImageUpload}
+                        disabled={isUploadingMainImage}
                       />
                       <Label
                         htmlFor="main-image-upload"
-                        className="cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-800"
+                        className={`cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium text-white ${
+                          isUploadingMainImage
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-green-700 hover:bg-green-800"
+                        }`}
                       >
-                        Select File
+                        {isUploadingMainImage ? "Uploading..." : "Select File"}
                       </Label>
                     </div>
                   </CardContent>
@@ -285,13 +360,18 @@ export function TourForm({ tour }: TourFormProps = {}) {
                   className="hidden"
                   id="gallery-image-upload"
                   onChange={handleGalleryImageUpload}
+                  disabled={isUploadingGalleryImage}
                 />
                 <Label
                   htmlFor="gallery-image-upload"
-                  className="cursor-pointer inline-flex items-center rounded-md bg-green-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-800"
+                  className={`cursor-pointer inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-white ${
+                    isUploadingGalleryImage
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-700 hover:bg-green-800"
+                  }`}
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Image
+                  {isUploadingGalleryImage ? "Uploading..." : "Add Image"}
                 </Label>
               </div>
             </div>
